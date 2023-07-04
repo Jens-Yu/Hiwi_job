@@ -1,15 +1,9 @@
-"""
-Class for controlling and plotting an arm with an arbitrary number of links.
-
-Author: Daniel Ingram
-"""
-
 import numpy as np
 import matplotlib.pyplot as plt
 
 
-class NLinkArm(object):
-    def __init__(self, link_lengths, joint_angles, goal, show_animation):
+class NLinkArm_b(object):
+    def __init__(self, link_lengths, joint_angles, goal, show_animation, basic_point):
         self.show_animation = show_animation
         self.n_links = len(link_lengths)
         if self.n_links != len(joint_angles):
@@ -17,7 +11,8 @@ class NLinkArm(object):
 
         self.link_lengths = np.array(link_lengths)
         self.joint_angles = np.array(joint_angles)
-        self.points = [[0, 0] for _ in range(self.n_links + 1)]
+        self.basic_point = basic_point
+        self.points = [[basic_point[0],basic_point[1]] for _ in range(self.n_links + 1)]
 
         self.lim = sum(link_lengths)
         self.goal = np.array(goal).T
@@ -61,16 +56,18 @@ class NLinkArm(object):
                          [self.points[i][1], self.points[i + 1][1]], 'r-')
             plt.plot(self.points[i][0], self.points[i][1], 'ko')
 
-        plt.plot(self.goal[0], self.goal[1], 'gx')
+        plt.plot(self.goal[0] + self.basic_point[0], self.goal[1] + self.basic_point[1], 'gx')
 
-        plt.plot([self.end_effector[0], self.goal[0]], [
-                 self.end_effector[1], self.goal[1]], 'g--')
+        plt.plot([self.end_effector[0], self.goal[0] + self.basic_point[0]], [
+                 self.end_effector[1], self.goal[1] + self.basic_point[1]], 'g--')
 
-        plt.xlim([-self.lim, self.lim])
+        plt.xlim([-self.lim, self.lim + self.basic_point[0]])
         plt.ylim([-self.lim, self.lim])
         plt.draw()
         plt.pause(0.0001)
 
     def click(self, event):
-        self.goal = np.array([event.xdata, event.ydata]).T
-        self.plot()
+        if event.button == 3:  # Left click for Arm A
+
+            self.goal = np.array([event.xdata - self.basic_point[0], event.ydata - self.basic_point[1]]).T
+            self.plot()
