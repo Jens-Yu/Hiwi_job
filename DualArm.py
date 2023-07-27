@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 
 class DualArm(object):
-    def __init__(self, link_lengths, joint_angles_a, joint_angles_b, goal_a, goal_b, basic_point, show_animation):
+    def __init__(self, link_lengths, joint_angles_a, joint_angles_b, goal_a, goal_b, basic_point, a_b, show_animation):
         self.show_animation = show_animation
         self.n_links = len(link_lengths)
         if self.n_links != len(joint_angles_a) or self.n_links != len(joint_angles_b):
@@ -20,6 +20,7 @@ class DualArm(object):
         self.basic_point = basic_point
         self.points_b = [[basic_point[0],basic_point[1]] for _ in range(self.n_links + 1)]
         self.goal_b = np.array(goal_b).T
+        self.a_b = a_b
 
         if show_animation:  # pragma: no cover
             self.fig = plt.figure()
@@ -86,8 +87,7 @@ class DualArm(object):
     def click(self, event):
         if event.button == 1:
             self.goal_a = np.array([event.xdata, event.ydata]).T
-        if event.button == 3:
-            self.goal_b = np.array([event.xdata - self.basic_point[0], event.ydata - self.basic_point[1]]).T
+            self.goal_b = np.array([event.xdata - self.basic_point[0] + self.a_b[0], event.ydata - self.basic_point[1] + self.a_b[1]]).T
         self.plot()
 
 
